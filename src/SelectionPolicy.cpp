@@ -1,5 +1,4 @@
 #include "SelectionPolicy.h"
-#pragma once
 #include <vector>
 #include "Facility.h"
 #include <algorithm>
@@ -8,14 +7,23 @@ using std::vector;
 //------NaiveSelection-----
 NaiveSelection::NaiveSelection(): lastSelectedIndex(-1) {}
 
+//selects the next facility to add to the plan according to naive order
 const FacilityType& NaiveSelection::selectFacility(const vector<FacilityType>& facilitiesOptions){
-    lastSelectedIndex++;
+    //to deal with lastSelectedIndex = -1 and the size of the vector
+    lastSelectedIndex=(lastSelectedIndex + 1)%(facilitiesOptions.size());
     return facilitiesOptions[lastSelectedIndex];
     }
 
-//const string NaiveSelection::toString() const;
+//converts policy to a matching string
+const string NaiveSelection::toString() const{
+    return ("SelectionPolicy: nve");
+}
 
-//NaiveSelection NaiveSelection::*clone() const
+//creats a copy of the current policy
+NaiveSelection *NaiveSelection::clone() const
+{
+    return new NaiveSelection(*this);
+}
 
 NaiveSelection::~NaiveSelection() = default;
 
@@ -23,18 +31,25 @@ NaiveSelection::~NaiveSelection() = default;
 
 EconomySelection::EconomySelection(): lastSelectedIndex(-1) {}
 
+//selects the next facility to add to the plan by naive order, only if its from type "economy"
 const FacilityType& EconomySelection::selectFacility(const vector<FacilityType>& facilitiesOptions){
     //to deal with lastSelectedIndex = -1 and the size of the vector
-    lastSelectedIndex=(lastSelectedIndex++)%(facilitiesOptions.size());
+    lastSelectedIndex=(lastSelectedIndex + 1)%(facilitiesOptions.size());
     while(facilitiesOptions[lastSelectedIndex].getCategory() != FacilityCategory::ECONOMY){
-        lastSelectedIndex=(lastSelectedIndex++)%(facilitiesOptions.size());
+        lastSelectedIndex=(lastSelectedIndex + 1)%(facilitiesOptions.size());
     }
     return facilitiesOptions[lastSelectedIndex];
 }
-    
-//const string EconomySelection::toString() const{}
 
-//EconomySelection EconomySelection::*clone() const{}
+//converts policy to a matching string   
+const string EconomySelection::toString() const{
+    return ("SelectionPolicy: eco");
+}
+
+//creats a copy of the current policy
+EconomySelection *EconomySelection::clone() const{
+    return new EconomySelection(*this);
+}
 
 EconomySelection::~EconomySelection() = default;
 
@@ -43,18 +58,25 @@ EconomySelection::~EconomySelection() = default;
 
 SustainabilitySelection::SustainabilitySelection(): lastSelectedIndex(-1) {}
 
+//selects the next facility to add to the plan by naive order, only if its from type "enviroment"
 const FacilityType& SustainabilitySelection::selectFacility(const vector<FacilityType>& facilitiesOptions){
     //to deal with lastSelectedIndex = -1 and the size of the vector
-    lastSelectedIndex=(lastSelectedIndex++)%(facilitiesOptions.size());
-    while(facilitiesOptions[lastSelectedIndex].getCategory() != FacilityCategory::ECONOMY){
-        lastSelectedIndex=(lastSelectedIndex++)%(facilitiesOptions.size());
+    lastSelectedIndex=(lastSelectedIndex + 1)%(facilitiesOptions.size());
+    while(facilitiesOptions[lastSelectedIndex].getCategory() != FacilityCategory::ENVIRONMENT){
+        lastSelectedIndex=(lastSelectedIndex + 1)%(facilitiesOptions.size());
     }
     return facilitiesOptions[lastSelectedIndex];
 }
 
-//const string SustainabilitySelection::toString() const{}
+//converts policy to a matching string
+const string SustainabilitySelection::toString() const{
+    return ("SelectionPolicy: env");
+}
 
-//SustainabilitySelection SustainabilitySelection::*clone() const{}
+//creats a copy of the current policy
+SustainabilitySelection *SustainabilitySelection::clone() const{
+    return new SustainabilitySelection(*this);
+}
 
 SustainabilitySelection::~SustainabilitySelection() = default;
 
@@ -67,14 +89,15 @@ BalancedSelection::BalancedSelection(int LifeQualityScore, int EconomyScore, int
     EnvironmentScore(EnvironmentScore)
 {}
 
+//selects the next facility to add to the plan according to which will create the best score balance
 const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>& facilitiesOptions){
     int difference = -1;
     int minValue;
     int savedIndex = 0;
-    for(int i = 0; i <= facilitiesOptions.size()-1 && difference != 0; i++){
-        int maxScore = std::max(LifeQualityScore + facilitiesOptions[i].getLifeQualityScore(), EconomyScore + facilitiesOptions[i].getEconomyScore(), EnvironmentScore + facilitiesOptions[i].getEnvironmentScore());
-        int minScore = std::min(LifeQualityScore + facilitiesOptions[i].getLifeQualityScore(), EconomyScore + facilitiesOptions[i].getEconomyScore(), EnvironmentScore + facilitiesOptions[i].getEnvironmentScore());
-        difference = maxScore - minValue;
+    for(size_t i = 0; i < facilitiesOptions.size() && difference != 0; i++){
+        int maxScore = std::max(LifeQualityScore + facilitiesOptions[i].getLifeQualityScore(), std::max(EconomyScore + facilitiesOptions[i].getEconomyScore(), EnvironmentScore + facilitiesOptions[i].getEnvironmentScore()));
+        int minScore = std::min(LifeQualityScore + facilitiesOptions[i].getLifeQualityScore(), std::min(EconomyScore + facilitiesOptions[i].getEconomyScore(), EnvironmentScore + facilitiesOptions[i].getEnvironmentScore()));
+        difference = maxScore - minScore;
         if(i == 0){
             minValue = difference;
         }
@@ -86,11 +109,15 @@ const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>
     return facilitiesOptions[savedIndex];
 }
 
+//converts policy to a matching string
+const string BalancedSelection::toString() const{
+     return ("SelectionPolicy: bal");
+}
 
-//const string toString() const override;
-
-
-//BalancedSelection *clone() const override;
+//creats a copy of the current policy
+BalancedSelection *BalancedSelection:: clone() const{
+    return new BalancedSelection(*this);
+};
 
 
 BalancedSelection:: ~BalancedSelection() = default;

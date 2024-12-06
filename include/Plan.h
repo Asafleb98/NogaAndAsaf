@@ -23,9 +23,19 @@ class Plan {
         void addFacility(Facility* facility);
         const string toString() const;
 
-        //new function:
-        Facility* Plan::chooseNextFacility() const;
-        void Plan::updateScores(Facility*);
+        //new functions:
+        Plan(const Plan&other);
+        ~Plan();
+        Plan(Plan &&other);
+        Plan& operator=(Plan&& other) = delete;
+        Plan& operator=(const Plan& other) = delete;
+
+        Facility* chooseNextFacility() const;
+        void updateScores(Facility*);
+        string statusToString() const;
+        int getPlanId();
+        SelectionPolicy* getSelectionPolicy();
+
 
 
     private:

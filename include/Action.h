@@ -18,13 +18,19 @@ class BaseAction{
         virtual BaseAction* clone() const = 0;
         virtual ~BaseAction() = default;
 
+        void setUserInput(const string &input); //setter for user input
+        string statusToString(ActionStatus status) const;
+
     protected:
         void complete();
         void error(string errorMsg);
         const string &getErrorMsg() const;
 
+        void setErrorMsg(string errorMsg); //setter for errorMsg
+        string userInput; 
+
     private:
-        string errorMsg;
+        string errorMsg; //change maybe
         ActionStatus status;
 };
 
