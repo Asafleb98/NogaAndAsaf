@@ -57,13 +57,13 @@ Facility::Facility(const string &name, const string &settlementName, const Facil
 
 //constructor
 Facility::Facility(const FacilityType &type, const string &settlementName)
-:Facility::Facility(type.getName()
+:Facility(type.FacilityType::getName()
 , settlementName
-, type.getCategory()
-, type.getCost()
-, type.getLifeQualityScore()
-, type.getEconomyScore()
-, type.getEnvironmentScore()) {}
+, type.FacilityType::getCategory()
+, type.FacilityType::getCost()
+, type.FacilityType::getLifeQualityScore()
+, type.FacilityType::getEconomyScore()
+, type.FacilityType::getEnvironmentScore()) {}
 
 //getter for the settlements name
 const string& Facility::getSettlementName() const{

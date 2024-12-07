@@ -14,17 +14,6 @@ SettlementType Settlement:: getType() const{
 }
 
 const string Settlement:: toString() const {
-    string typeString;
-    switch (type) {
-        case SettlementType::VILLAGE:
-        typeString = "Village";
-        break;
-        case SettlementType::CITY:
-        typeString = "CITY";
-        break;
-        case SettlementType::METROPOLIS:
-        typeString = "METROPOLIS";
-        break;
-    }
-    return "Settlement [Name: " + name + ",Type: " + typeString + "]";
+ 
+    return ("Settlement Name: " + this->getName());
 }

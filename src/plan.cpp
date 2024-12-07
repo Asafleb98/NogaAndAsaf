@@ -97,28 +97,36 @@ void Plan::setSelectionPolicy(SelectionPolicy *selectionPolicy){
     this->selectionPolicy = selectionPolicy;
 }
 
+//getter for settlement
+Settlement Plan::getSettlement()
+{
+    return settlement;
+}
+
 //adds new facilities if possible and advances all facilities under construction by 1 time unit
 void Plan::step(){
+     std::cout << "in0\n";
     //adds new facilities as long as the status of the plan is "Avaliable"
-    while(status == PlanStatus::AVALIABLE){
-        Facility* newFacilityPtr = Plan::chooseNextFacility();
-        Plan::addFacility(newFacilityPtr);
-        if(underConstruction.size() ==static_cast<size_t>( settlementType + 1)){
-            status = PlanStatus::BUSY;
+    if(status == PlanStatus::AVALIABLE){
+         std::cout << "in1\n";
+        size_t maxFacilities = static_cast<size_t>( settlementType + 1);
+        while(underConstruction.size() < maxFacilities){
+            std::cout << "in2\n";
+            Facility *newFacilityPtr = Plan::chooseNextFacility();
+            Plan::addFacility(newFacilityPtr);
         }
     }
 
     //decrees all under construction by 1
     for(size_t i=0; i < underConstruction.size(); i++){
-        Facility* currFacility = underConstruction[i];
-        currFacility->step();
-        if(currFacility->getStatus() == FacilityStatus::OPERATIONAL){
+       underConstruction[i]->step();
+        if(underConstruction[i]->getStatus() == FacilityStatus::OPERATIONAL){
             //add the Facility to the facilities vector
-            facilities.push_back(currFacility);
+            facilities.push_back(underConstruction[i]);
             //erase the Facility from underConstruction vector
             underConstruction.erase(underConstruction.begin() + i);
             //updates the scores of the plan after adding this facility to the settlement
-            Plan::updateScores(currFacility);
+            Plan::updateScores(underConstruction[i]);
             //update i so it will match the index of the "underConstruction" vector
             i--;
         }
@@ -140,6 +148,9 @@ void Plan::printStatus(){
 //adds a new facility to the underConstruction vector
 void Plan::addFacility(Facility* facility){
     underConstruction.push_back(facility);
+    if(underConstruction.size() == static_cast<size_t>(settlementType + 1)){
+        status = PlanStatus::BUSY;
+    }
 }
 
 // chooses the next facility to be added to the plan according to the selection policy
@@ -204,4 +215,5 @@ SelectionPolicy *Plan::getSelectionPolicy()
             "Envrionmental Score: " + std::to_string(economy_score) + "\n" +
             facilitiesString);
  }
+
 

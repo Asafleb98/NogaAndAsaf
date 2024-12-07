@@ -35,6 +35,7 @@ class Plan {
         string statusToString() const;
         int getPlanId();
         SelectionPolicy* getSelectionPolicy();
+        Settlement getSettlement();
 
 
 

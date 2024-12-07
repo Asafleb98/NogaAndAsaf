@@ -29,8 +29,8 @@ class Simulation {
         Simulation(const Simulation&other);
         ~Simulation();
         Simulation(Simulation &&other);
-        void operator=(Simulation&& other);
-        void operator=(const Simulation& other);
+        Simulation& operator=(Simulation&& other);
+        Simulation& operator=(const Simulation& other);
 
         //new functions
         SelectionPolicy* StringToPolicy(const string &policy, int planId);

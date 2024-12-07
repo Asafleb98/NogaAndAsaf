@@ -59,10 +59,10 @@ Simulation:: Simulation(const string &configFilePath):
         } else if (args[0] == "plan") {
 
             // settlement of the plan
-            Settlement settlementPlan = getSettlement(args[1]);
+            //Settlement settlementPlan =  getSettlement(args[1]);
 
             // policy of the plan
-            Simulation::addPlan(settlementPlan, StringToPolicy(args[2], planCounter));
+            Simulation::addPlan(Simulation::getSettlement(args[1]), StringToPolicy(args[2], planCounter));
         }        
     }
     file.close();
@@ -188,6 +188,7 @@ bool Simulation::addSettlement(Settlement *settlement)
     string settlementName = settlement->getName();
     bool exists = isSettlementExists(settlementName);
     if (exists == true){
+        delete settlement;
         return false;
     }
     else{
@@ -223,8 +224,14 @@ bool Simulation::isSettlementExists(const string &settlementName){
 Settlement &Simulation::getSettlement(const string &settlementName) {
     for(size_t i=0; i < settlements.size(); i++){
         if (settlementName == settlements[i]->getName()){
-            return (*settlements[i]);
+            return *(settlements[i]);
         }
+//של נגה
+        // if (settlementName == settlements[i]->getName()){
+        //     Settlement *toReturn = new Settlement(settlementName, settlements[i]->getType());
+        //     return *toReturn;
+        // }
+
     }
     Settlement *invalidSettlement = nullptr;
     return *invalidSettlement;
@@ -278,12 +285,19 @@ void Simulation::step()
     for(size_t i=0; i < plans.size(); i++){
         plans[i].step();
     }
-};
+}
 
 //changes the isRunning flag to false
 void Simulation::close(){
+    string output = "";
+
+    for(Plan plan : plans){
+        output += plan.toString();
+    }
     isRunning = false;
-};
+
+    std::cout << output << std::endl;
+}
 
 //changes the isRunning flag to open
 void Simulation::open(){
@@ -295,15 +309,23 @@ Simulation::Simulation(const Simulation &other)
     :isRunning(other.isRunning),
     planCounter(other.planCounter),
     actionsLog(),
-    plans(other.plans),
+    plans(),
     settlements(),
     facilitiesOptions(other.facilitiesOptions)
 {
     for(size_t i = 0; i < other.actionsLog.size(); i++){
         actionsLog.push_back(other.actionsLog[i]->clone()); 
     }
+
     for(size_t i = 0; i < other.settlements.size(); i++){
         settlements.push_back(new Settlement(*other.settlements[i]));
+    }
+
+    for (size_t i = 0; i < other.plans.size(); i++){
+        string settlemantName = plans[i].getSettlement().getName();
+        Settlement newSettlamant = getSettlement(settlemantName);
+        Plan newPlan = Plan(plans[i].getPlanId(), newSettlamant, plans[i].getSelectionPolicy(), facilitiesOptions);
+        plans.push_back(newPlan);
     }
 }
 
@@ -314,10 +336,14 @@ Simulation::~Simulation()
         delete actionsLog[i];
     } 
     actionsLog.clear();
+
     for(size_t i = 0; i < settlements.size(); i++){
         delete settlements[i];
     } 
     settlements.clear();
+
+    plans.clear();
+    facilitiesOptions.clear();
 }
 
 //move constructor
@@ -331,44 +357,54 @@ Simulation::Simulation(Simulation &&other)
 {}
 
 //move assignment
-void Simulation::operator=(Simulation &&other)
+Simulation& Simulation::operator=(Simulation &&other)
 {
-    this->isRunning = other.isRunning;
-    this->planCounter = other.planCounter;
-    this->actionsLog = std::move(other.actionsLog);
-    this->plans = std::move(other.plans);
-    this->settlements = std::move(other.settlements);
-    this->facilitiesOptions = std::move(other.facilitiesOptions);
+    if (this != &other){
+        isRunning = other.isRunning;
+        planCounter = other.planCounter;
+        this->actionsLog = std::move(other.actionsLog);
+        this->plans = std::move(other.plans);
+        this->settlements = std::move(other.settlements);
+        this->facilitiesOptions = std::move(other.facilitiesOptions);
+
+    }
+    return *this;
 }
 
 //copy assignment
-void Simulation::operator=(const Simulation &other)
+Simulation& Simulation::operator=(const Simulation &other)
 {
-    this->isRunning = other.isRunning;
-    this->planCounter = other.planCounter;
-    plans.clear();
-      for(size_t i = 0; i < this->plans.size(); i++){
-        this->plans.push_back( other.plans[i]);
-    } 
-
-        this->facilitiesOptions.clear();
-      for(size_t i = 0; i < this->facilitiesOptions.size(); i++){
-        this->facilitiesOptions.push_back( other.facilitiesOptions[i]);
-      }
-
-    for(size_t i = 0; i < actionsLog.size(); i++){
-        delete actionsLog[i];
-    }
-    actionsLog.clear();
-    for(size_t i = 0; i < other.actionsLog.size(); i++){
-        actionsLog.push_back(actionsLog[i]);
+    if(this != &other){
+        isRunning = other.isRunning;
+        planCounter = other.planCounter;
+       // facilitiesOptions = other.facilitiesOptions;
+    facilitiesOptions.clear();
+    for(size_t i=0; i<other.facilitiesOptions.size(); i++){
+        facilitiesOptions.push_back(other.facilitiesOptions[i]);
     }
 
-    for(size_t i = 0; i < settlements.size(); i++){
-        delete settlements[i];
+        plans.clear();
+        for(size_t i = 0; i < this->plans.size(); i++){
+            this->plans.push_back( other.plans[i]);
+        } 
+
+        for(size_t i = 0; i < actionsLog.size(); i++){
+            delete actionsLog[i];
+        }
+        actionsLog.clear();
+
+        for(size_t i = 0; i < other.actionsLog.size(); i++){
+            actionsLog.push_back(other.actionsLog[i]->clone());
+        }
+
+        for(size_t i = 0; i < settlements.size(); i++){
+            delete settlements[i];
+        }
+
+        settlements.clear();
+        for(size_t i = 0; i < other.settlements.size(); i++){
+            settlements.push_back(new Settlement(other.settlements[i]->getName(), other.settlements[i]->getType()));
+        }
     }
-    settlements.clear();
-    for(size_t i = 0; i < other.settlements.size(); i++){
-        settlements.push_back(settlements[i]);
-    }
+    return *this;
 }
