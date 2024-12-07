@@ -24,13 +24,12 @@ class BaseAction{
     protected:
         void complete();
         void error(string errorMsg);
-        const string &getErrorMsg() const;
 
-        void setErrorMsg(string errorMsg); //setter for errorMsg
-        string userInput; 
+        string userInput;
+        string errorMsg; 
 
     private:
-        string errorMsg; //change maybe
+         //change maybe
         ActionStatus status;
 };
 

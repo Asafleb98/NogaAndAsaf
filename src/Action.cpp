@@ -45,6 +45,7 @@ string BaseAction::statusToString(ActionStatus status) const
         case ActionStatus::ERROR:
             return "ERROR";
     }
+    return "";
 }
 
 //end of new functions
@@ -119,7 +120,7 @@ AddSettlement::AddSettlement(const string &settlementName, SettlementType settle
 
 void AddSettlement::act(Simulation &simulation)
 {
-    Settlement *toAdd = &Settlement(settlementName, settlementType);
+    Settlement *toAdd = new Settlement(settlementName, settlementType);
     bool added = simulation.addSettlement(toAdd);
     if (added == true){
         complete();
@@ -296,8 +297,10 @@ BackupSimulation::BackupSimulation()
 
 void BackupSimulation::act(Simulation &simulation)
 {
+    Simulation *backupSimulation ;
     if(simulation.simulationBackup == nullptr){
-        Simulation *backupSimulation = new Simulation(simulation);
+        backupSimulation = new Simulation(simulation);
+        simulation.simulationBackup = backupSimulation;
     }
     else{
         simulation.simulationBackup = &simulation;

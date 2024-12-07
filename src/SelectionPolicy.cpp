@@ -25,7 +25,6 @@ NaiveSelection *NaiveSelection::clone() const
     return new NaiveSelection(*this);
 }
 
-NaiveSelection::~NaiveSelection() = default;
 
 //------EconomySelection-----
 
@@ -50,8 +49,6 @@ const string EconomySelection::toString() const{
 EconomySelection *EconomySelection::clone() const{
     return new EconomySelection(*this);
 }
-
-EconomySelection::~EconomySelection() = default;
 
 
 //------SustainabilitySelection-----
@@ -78,7 +75,6 @@ SustainabilitySelection *SustainabilitySelection::clone() const{
     return new SustainabilitySelection(*this);
 }
 
-SustainabilitySelection::~SustainabilitySelection() = default;
 
 //------BalancedSelection-----
 
@@ -120,4 +116,3 @@ BalancedSelection *BalancedSelection:: clone() const{
 };
 
 
-BalancedSelection:: ~BalancedSelection() = default;

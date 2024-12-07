@@ -71,11 +71,11 @@ Simulation:: Simulation(const string &configFilePath):
 //creates diffferent actions according to use input
 void Simulation::start(){
     open();
-    std::cout << "The simulation has started";
+    std::cout << "The simulation has started\n";
     //recieving input as long as the isRunnig flag is true
     while(isRunning){
         std::string userInput;
-        std::cout << "Enter a command";
+        std::cout << "Enter a command\n";
         std::getline(std::cin, userInput);
         vector<string> commands = Auxiliary::parseArguments(userInput);
 

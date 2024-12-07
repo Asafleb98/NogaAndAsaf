@@ -13,10 +13,10 @@ Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy* sele
     : plan_id(planId)
     , settlement(settlement)
     , selectionPolicy(selectionPolicy)
-    , facilityOptions(facilityOptions)
     , status(PlanStatus::AVALIABLE)
     , facilities({})
     , underConstruction({})
+    , facilityOptions(facilityOptions)
     , life_quality_score(0)
     , economy_score(0)
     , environment_score(0)
@@ -27,11 +27,11 @@ Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy* sele
 Plan::Plan(const Plan &other)
     : plan_id(other.plan_id)
     , settlement(other.settlement)
-    , selectionPolicy(other.selectionPolicy->clone())
-    , facilityOptions(other.facilityOptions)
+    ,selectionPolicy(other.selectionPolicy ? other.selectionPolicy->clone() : nullptr)
     , status(other.status)
     , facilities()
     , underConstruction()
+    , facilityOptions(other.facilityOptions)
     , life_quality_score(other.life_quality_score)
     , economy_score(other.economy_score)
     , environment_score(other.environment_score)
@@ -56,7 +56,7 @@ Plan::~Plan()
         delete underConstruction[i];
     } 
     underConstruction.clear();
-    delete selectionPolicy;
+    delete this->selectionPolicy;
 }
 
 //move constructer
@@ -64,10 +64,10 @@ Plan::Plan(Plan &&other)
 : plan_id(other.plan_id)
 , settlement(other.settlement)
 , selectionPolicy(other.selectionPolicy)
-, facilityOptions(std::move(other.facilityOptions))
 , status(other.status)
 , facilities(std::move(other.facilities))
 , underConstruction(std::move(other.underConstruction))
+, facilityOptions(std::move(other.facilityOptions))
 , life_quality_score(other.life_quality_score)
 , economy_score(other.economy_score)
 , environment_score(other.environment_score)
@@ -103,7 +103,7 @@ void Plan::step(){
     while(status == PlanStatus::AVALIABLE){
         Facility* newFacilityPtr = Plan::chooseNextFacility();
         Plan::addFacility(newFacilityPtr);
-        if(underConstruction.size() == settlementType + 1){
+        if(underConstruction.size() ==static_cast<size_t>( settlementType + 1)){
             status = PlanStatus::BUSY;
         }
     }
@@ -124,7 +124,7 @@ void Plan::step(){
         }
     }
     //update status
-    if(underConstruction.size() < settlementType + 1){
+    if(underConstruction.size() < static_cast<size_t>( settlementType + 1)){
         status = (PlanStatus::AVALIABLE);
     }
     else{
@@ -144,9 +144,8 @@ void Plan::addFacility(Facility* facility){
 
 // chooses the next facility to be added to the plan according to the selection policy
 Facility* Plan::chooseNextFacility() const{
-    Facility newFacility (selectionPolicy->selectFacility(facilityOptions),settlement.getName());
-    Facility* newFacilityPtr = &newFacility;
-    return newFacilityPtr;
+    Facility *newFacility = new Facility (selectionPolicy->selectFacility(facilityOptions),settlement.getName());
+    return newFacility;
 }
 
 //updates the scores of the plan according to the new facility that was added
